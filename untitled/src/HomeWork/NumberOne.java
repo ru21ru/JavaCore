@@ -4,67 +4,56 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NumberOne {
+    public static String retZveda(int kol) {
+        String str;
+        str = "";
+        while (kol >= 1) {
+            --kol;
+            str = str + "*";
+        }
+        return str;
+    }
+
     public static void main(String[] args) {
-
-
         //Телефон (до/после маскирования): 79991113344 / 7999***3344
         //Email (до/после маскирования): test@yandex.ru / tes*@******.ru, my_mail@gmail.com / my_mai*@*****.com
         //Фио (до/после маскирования): Иванов Иван Иванович / И****в Иван И.
-        //String str = "79991113344;78881113333";
-        String str = "test@yandex.ru;79991113344";
+        String str, fioMask, regTel;
+        str = "Иванов Иван Иванович;test@yandex.ru;79991113344";
         int start, end;
-        StringBuilder stringBuilder = new StringBuilder(str);
-        String tel = "[0-9]{11}";
-        //String email = "[a-zA-Z0-9]+@[a-zA-Z0-9]+.[a-zA-Z]+";
 
-       // String email = "\w*@\w*.[a-zA-Z]*";
+        //Телефон
+        regTel = "([0-9]{4})([0-9]{3})([0-9]{4})";
+        str = str.replaceAll(regTel, "$1" + "***" + "$3");
 
-        Pattern p = Pattern.compile(tel);
-        Matcher m = p.matcher(str);
-
-        while (m.find())
-        {
-            start = m.start();
-            end = m.end();
-            stringBuilder.replace(start + 4, end - 4, "***");
-        }
-        str = stringBuilder.toString();
         //Замена почты
         String firstMask, lastMask, emailMask, strReplace, newEmail;
-        emailMask = "[a-zA-Z0-9]+@[a-zA-Z0-9]+.[a-zA-Z]+";
-        firstMask = "[a-zA-Z0-9]+@";
+        emailMask = "([a-zA-Z0-9]+)[^.]@([a-zA-Z0-9]+)(.[a-zA-Z]+)";
+        str = str.replaceAll(emailMask, "$1" + "*@" + "***" + "$3");
 
-        p = Pattern.compile(emailMask);
+        //ФИО
+        fioMask = "([А-Я][а-я]*)\s([А-Я][а-я]*)\s([А-Я][а-я]*)";
+
+        Pattern p = Pattern.compile(regTel);
+        Matcher m = p.matcher(str);
+
+        p = Pattern.compile(fioMask);
         m = p.matcher(str);
+        StringBuilder stringBuilder = new StringBuilder(str);
 
-        while (m.find())
-        {
-            start = m.start();
-            end = m.end();
+        while (m.find()) {
+            start = m.start(1);
+            end = m.end(1);
 
-            String strEmil = stringBuilder.substring(start, end);
+            stringBuilder.replace(start + 1, end - 1, retZveda(end - 2 + start));
 
-            ;
+            start = m.start(3);
+            end = m.end(3);
 
-            System.out.println(strEmil);
-            //System.out.println(strEmil.indexOf("@"));
-           newEmail = strEmil.replace("@", "*@");
-           start = strEmil.indexOf("@") + 1;
-           end = strEmil.indexOf(".") - 1;
-           //System.out.println();
-            strReplace = "";
-            for (int i = 0; i < end - start; i++) {
-            strReplace = strReplace + "*";
-            }
-            System.out.println(strEmil + " sfsd" );
-            newEmail = newEmail.replace(strEmil.substring(start, end), strReplace);
-            System.out.println(strEmil + " sfsd" );
-            str = str.replace(strEmil, newEmail);
+            stringBuilder.replace(start, end, m.group(3).charAt(0) + ".");
         }
 
-
-
-        System.out.println(str);
-        //stringBuilder.replace()
+        System.out.println(stringBuilder);
     }
 }
+
